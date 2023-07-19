@@ -8,6 +8,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type Status uint8
+
+const (
+	INCOMPLETE Status = iota
+	COMPLETED
+)
+
+type Todo struct {
+	Title  string
+	Status Status
+}
+
 type TemplateRenderer struct {
 	templates *template.Template
 }
@@ -27,6 +39,27 @@ func main() {
 		templates: template.Must(template.ParseGlob("html/*.html")),
 	}
 	e.Renderer = renderer
+
+	todos := []Todo{
+		{Title: "Todo 1", Status: 0},
+		{Title: "Todo 2", Status: 1},
+		{Title: "Todo 3", Status: 1},
+	}
+
+	todo := e.Group("todo")
+
+	todo.GET("/list", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "todos.html", &todos)
+	})
+	todo.POST("/create", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "index.html", nil)
+	})
+	todo.GET("/update", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "index.html", nil)
+	})
+	todo.GET("/delete", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "index.html", nil)
+	})
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", nil)
