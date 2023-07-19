@@ -49,10 +49,19 @@ func main() {
 	todo := e.Group("todo")
 
 	todo.GET("/list", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "todos.html", &todos)
+		return c.Render(http.StatusOK, "index.html", &todos)
 	})
 	todo.POST("/create", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
+    title := c.FormValue("title")
+
+    if title == "" {
+      return c.NoContent(http.StatusBadRequest)
+    }
+
+		newTodo := Todo{Title: title, Status: 0}
+		todos = append(todos, newTodo)
+
+		return c.Render(http.StatusOK, "todo.html", newTodo)
 	})
 	todo.GET("/update", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", nil)

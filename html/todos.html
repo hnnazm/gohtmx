@@ -1,32 +1,51 @@
-<!DOCTYPE html>
+{{ define "todos" }}
+<h1 class="text-2xl font-bold self-center">TODO</h1>
+<div class="flex flex-col space-y-4">
+  <form hx-post="create" hx-target="#todo-list" hx-swap="beforeend" class="grid grid-cols-3 items-center space-x-3">
+    <input type="text" name="title" class="p-2 col-span-2 rounded-lg" />
+    <button type="submit" class="py-2 text-slate-50 bg-green-700 hover:bg-green-600 rounded-lg">
+      Add
+    </button>
+  </form>
+  <ul id="todo-list" hx-get="list" hx-trigger="newTodo from:body" class="flex flex-col space-y-2">
+    {{ range . }}
+    {{ if .Status }}
+    <li hx-swap-oob="beforeend:#todo-table"
+      class="px-2 py-3 flex flex-row items-center bg-slate-100 shadow-md rounded-lg opacity-30 cursor-not-allowed">
+      <span class="grow">{{ .Title }}</span>
+      <span class="shrink-0 inline-flex flex-row items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6 text-green-700">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
 
-<html>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6 text-red-700">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </span>
+    </li>
+    {{ else }}
+    <li class="px-2 py-3 flex flex-row items-center bg-slate-100 shadow-md rounded-lg">
+      <span class="grow">{{ .Title }}</span>
+      <span class="shrink-0 inline-flex flex-row items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6 text-green-700 cursor-pointer">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
 
-<head>
-  <title>GoHTMX</title>
-  <script src="https://unpkg.com/htmx.org@1.9.3"
-    integrity="sha384-lVb3Rd/Ca0AxaoZg5sACe8FJKF0tnUgR2Kd7ehUOG5GCcROv5uBIZsOqovBAcWua"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="bg-slate-100 text-slate-900 py-24">
-  <div class="w-screen max-w-md mx-auto flex flex-col space-y-12">
-    <h1 class="text-2xl font-bold self-center">TODO</h1>
-    <div class="flex flex-col space-y-4">
-      <form class="grid grid-cols-3 items-center space-x-3">
-        <input type="text" class="p-2 col-span-2 rounded-lg" />
-        <button type="submit" hx-post="create" class="py-2 text-slate-50 bg-green-700 hover:bg-green-600 rounded-lg">
-          Add
-        </button>
-      </form>
-      <ul class="flex flex-col space-y-2">
-        {{ range . }}
-        {{ template "todo" . }}
-        {{ end }}
-      </ul>
-    </div>
-  </div>
-</body>
-
-</html>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+          class="w-6 h-6 text-red-700 cursor-pointer">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </span>
+    </li>
+    {{ end }}
+    {{ end }}
+  </ul>
+</div>
+{{ end }}
