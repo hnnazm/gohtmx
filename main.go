@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -37,10 +36,10 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func RemoveIndex(s []Todo, index int) []Todo {
-    ret := make([]Todo, 0)
-    ret = append(ret, s[:index]...)
+	ret := make([]Todo, 0)
+	ret = append(ret, s[:index]...)
 
-    return append(ret, s[index+1:]...)
+	return append(ret, s[index+1:]...)
 }
 
 func main() {
@@ -75,37 +74,37 @@ func main() {
 		return c.Render(http.StatusOK, "todo.html", newTodo)
 	})
 
-	todo.GET("/update", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
+  todo.PUT("/update/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+
+		if err != nil {
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		for i := 0; i < len(todos); i++ {
+			if todos[i].ID == id {
+				todos[i].Status = Status(1)
+			}
+		}
+
+		return c.Render(http.StatusOK, "todo.html", todos[id])
 	})
 
 	todo.DELETE("/delete/:id", func(c echo.Context) error {
 		id, err := strconv.Atoi(c.Param("id"))
 
-    if err != nil {
+		if err != nil {
 			return c.NoContent(http.StatusBadRequest)
-    }
+		}
 
-    todos = RemoveIndex(todos, id)
+		todos = RemoveIndex(todos, id)
 
-    if err != nil {
+		if err != nil {
 			return c.NoContent(http.StatusBadRequest)
-    }
-
-    fmt.Println(todos)
+		}
 
 		return c.NoContent(http.StatusOK)
 	})
-
-	e.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
-	})
-
-	e.PUT("/messages", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "message.html", map[string]interface{}{
-			"name": "Dolly!",
-		})
-	}).Name = "foobar"
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
