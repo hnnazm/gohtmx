@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -16,6 +18,7 @@ const (
 )
 
 type Todo struct {
+	ID     int
 	Title  string
 	Status Status
 }
@@ -33,6 +36,13 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+func RemoveIndex(s []Todo, index int) []Todo {
+    ret := make([]Todo, 0)
+    ret = append(ret, s[:index]...)
+
+    return append(ret, s[index+1:]...)
+}
+
 func main() {
 	e := echo.New()
 	renderer := &TemplateRenderer{
@@ -41,9 +51,9 @@ func main() {
 	e.Renderer = renderer
 
 	todos := []Todo{
-		{Title: "Todo 1", Status: 0},
-		{Title: "Todo 2", Status: 1},
-		{Title: "Todo 3", Status: 1},
+		{ID: 0, Title: "Todo 1", Status: 0},
+		{ID: 1, Title: "Todo 2", Status: 1},
+		{ID: 2, Title: "Todo 3", Status: 1},
 	}
 
 	todo := e.Group("todo")
@@ -51,23 +61,40 @@ func main() {
 	todo.GET("/list", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", &todos)
 	})
+
 	todo.POST("/create", func(c echo.Context) error {
-    title := c.FormValue("title")
+		title := c.FormValue("title")
 
-    if title == "" {
-      return c.NoContent(http.StatusBadRequest)
-    }
+		if title == "" {
+			return c.NoContent(http.StatusBadRequest)
+		}
 
-		newTodo := Todo{Title: title, Status: 0}
+		newTodo := Todo{ID: len(todos), Title: title, Status: 0}
 		todos = append(todos, newTodo)
 
 		return c.Render(http.StatusOK, "todo.html", newTodo)
 	})
+
 	todo.GET("/update", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", nil)
 	})
-	todo.GET("/delete", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "index.html", nil)
+
+	todo.DELETE("/delete/:id", func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+
+    if err != nil {
+			return c.NoContent(http.StatusBadRequest)
+    }
+
+    todos = RemoveIndex(todos, id)
+
+    if err != nil {
+			return c.NoContent(http.StatusBadRequest)
+    }
+
+    fmt.Println(todos)
+
+		return c.NoContent(http.StatusOK)
 	})
 
 	e.GET("/", func(c echo.Context) error {
